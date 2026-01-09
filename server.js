@@ -69,6 +69,12 @@ app.post("/post", (req, res) => {
     res.json({ ok: true });
 });
 
+app.post('/post-delete', (req, res) => {
+    io.emit('post:delete', {
+        id: req.body.id
+    });
+    res.sendStatus(200);
+});
 
 server.listen(3000, () => {
     console.log("Socket presence server running :3000");

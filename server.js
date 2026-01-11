@@ -69,6 +69,11 @@ app.post("/post", (req, res) => {
     res.json({ ok: true });
 });
 
+app.post('/post-update', (req, res) => {
+    io.emit('post:update', req.body);
+    res.json({ ok: true });
+});
+
 app.post('/post-delete', (req, res) => {
     io.emit('post:delete', {
         id: req.body.id

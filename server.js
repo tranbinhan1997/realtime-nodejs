@@ -40,7 +40,8 @@ io.on("connection", (socket) => {
 
     onlineUsers.set(user.id, {
         id: user.id,
-        name: user.name
+        name: user.name,
+        avatar: user.avatar
     });
 
     // danh sách online cho user mới
@@ -52,7 +53,8 @@ io.on("connection", (socket) => {
     // user online
     io.emit("presence:online", {
         id: user.id,
-        name: user.name
+        name: user.name,
+        avatar: user.avatar
     });
 
     // user offline

@@ -13,8 +13,6 @@ const io = require("socket.io")(server, {
     cors: { origin: "*" }
 });
 
-const onlineUsers = new Map();
-
 io.use(async (socket, next) => {
     try {
         const token = socket.handshake.auth.token;
@@ -35,6 +33,8 @@ io.use(async (socket, next) => {
     }
 });
 
+const onlineUsers = new Map();
+const userSockets = new Map();
 io.on("connection", (socket) => {
     const user = socket.user;
 
@@ -43,6 +43,8 @@ io.on("connection", (socket) => {
         name: user.name,
         avatar: user.avatar
     });
+
+    userSockets.set(String(user.id), socket.id);
 
     // danh sách online cho user mới
     socket.emit(
@@ -60,28 +62,43 @@ io.on("connection", (socket) => {
     // user offline
     socket.on("disconnect", () => {
         onlineUsers.delete(user.id);
+        userSockets.delete(user.id);
         io.emit("presence:offline", {
             id: user.id
         });
     });
 });
 
+// add post
 app.post("/post", (req, res) => {
     io.emit("post:new", req.body);
     res.json({ ok: true });
 });
 
+// update post
 app.post('/post-update', (req, res) => {
     io.emit('post:update', req.body);
     res.json({ ok: true });
 });
 
+// xóa post
 app.post('/post-delete', (req, res) => {
     io.emit('post:delete', {
         id: req.body.id
     });
     res.sendStatus(200);
 });
+
+// gửi tin nhắn 
+app.post("/message-send", (req, res) => {
+    const msg = req.body;
+    const toSocketId = userSockets.get(String(msg.to_user_id));
+    if (toSocketId) {
+        io.to(toSocketId).emit("chat:new", msg);
+    }
+    res.json({ ok: true });
+});
+
 
 server.listen(3000, () => {
     console.log("Socket presence server running :3000");

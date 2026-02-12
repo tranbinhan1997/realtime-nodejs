@@ -89,6 +89,18 @@ app.post('/post-delete', (req, res) => {
     res.sendStatus(200);
 });
 
+// reaction
+app.post('/post-react', (req, res) => {
+    io.emit('post:react', req.body);
+    res.json({ ok: true });
+});
+
+// comment
+app.post('/post-comment', (req, res) => {
+    io.emit('post:comment', req.body);
+    res.json({ ok: true });
+});
+
 // gửi tin nhắn 
 app.post("/message-send", (req, res) => {
     const msg = req.body;
